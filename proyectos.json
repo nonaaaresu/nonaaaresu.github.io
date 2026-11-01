@@ -36,5 +36,40 @@
             "assets/proyectos/poster-tool/02.png",
             "assets/proyectos/poster-tool/03.png"
         ]
+    },
+    {
+        "id": "reload-identidad",
+        "titulo": "Reload - Guía de Identidad",
+        "categoria": "Guía de identidad",
+        "year": "2026",
+        "portada": "assets/proyectos/reload-identidad/01.jpg",
+        "descripcion": "Guía de identidad realizada para una marca ficticia de energizantes. Se desarrollo principalmente la identidad del logotipo, sus variaciones responsives y el uso inadecuado del mismo.",
+        "imagenes": [
+            "assets/proyectos/reload-identidad/01.jpg",
+            "assets/proyectos/reload-identidad/02.jpg",
+            "assets/proyectos/reload-identidad/03.jpg",
+            "assets/proyectos/reload-identidad/04.jpg",
+            "assets/proyectos/reload-identidad/05.jpg",
+            "assets/proyectos/reload-identidad/06.jpg",
+            "assets/proyectos/reload-identidad/07.jpg",
+            "assets/proyectos/reload-identidad/08.jpg",
+            "assets/proyectos/reload-identidad/09.jpg",
+            "assets/proyectos/reload-identidad/010.jpg",
+            "assets/proyectos/reload-identidad/011.jpg",
+            "assets/proyectos/reload-identidad/012.jpg",
+            "assets/proyectos/reload-identidad/013.jpg",
+            "assets/proyectos/reload-identidad/014.jpg",
+            "assets/proyectos/reload-identidad/015.jpg",
+            "assets/proyectos/reload-identidad/016.jpg",
+            "assets/proyectos/reload-identidad/017.jpg",
+            "assets/proyectos/reload-identidad/018.jpg",
+            "assets/proyectos/reload-identidad/019.jpg",
+            "assets/proyectos/reload-identidad/020.jpg",
+            "assets/proyectos/reload-identidad/021.jpg",
+            "assets/proyectos/reload-identidad/022.jpg",
+            "assets/proyectos/reload-identidad/023.jpg",
+            "assets/proyectos/reload-identidad/024.jpg",
+            "assets/proyectos/reload-identidad/025.jpg"
+        ]
     }
 ]
