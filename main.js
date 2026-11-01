@@ -1,71 +1,130 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Cargar Grilla de Proyectos en index.html
-    const projectsGrid = document.getElementById('projects-grid');
-    if (projectsGrid) {
-        fetch('proyectos.json')
-            .then(res => res.json())
-            .then(proyectos => {
-                projectsGrid.innerHTML = proyectos.map(p => `
-                    <article class="project-card">
-                        <a href="proyecto.html?id=${p.id}" class="project-link">
-                            <figure class="project-media">
-                                <img src="${p.portada}" alt="${p.titulo}" loading="lazy">
-                            </figure>
-                            <div class="project-tooltip">
-                                <h3 class="project-title">${p.titulo}</h3>
-                                <span class="project-tag">${p.categoria} — ${p.year}</span>
-                            </div>
-                        </a>
-                    </article>
-                `).join('');
+const escapeHTML = (str = '') =>
+    String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
 
-                initHoverEffect();
-            })
-            .catch(err => console.error('Error al cargar proyectos:', err));
-    }
+async function loadProjects() {
+    const res = await fetch('proyectos.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+}
 
-    // 2. Cargar Detalle del Proyecto en proyecto.html
-    const galleryContainer = document.getElementById('project-gallery');
-    if (galleryContainer) {
-        const params = new URLSearchParams(window.location.search);
-        const projectId = params.get('id');
+const showMessage = (el, text) => {
+    el.innerHTML = `<p class="empty-state">${text}</p>`;
+};
 
-        fetch('proyectos.json')
-            .then(res => res.json())
-            .then(proyectos => {
-                const proyecto = proyectos.find(p => p.id === projectId) || proyectos[0];
-                if (!proyecto) return;
+/* 1. Grilla de proyectos (index.html) */
+const projectsGrid = document.getElementById('projects-grid');
+if (projectsGrid) {
+    loadProjects()
+        .then(proyectos => {
+            projectsGrid.innerHTML = proyectos.map((p, i) => `
+                <article class="project-card">
+                    <a href="proyecto.html?id=${encodeURIComponent(p.id)}" class="project-link">
+                        <figure class="project-media">
+                            <img src="${escapeHTML(p.portada)}"
+                                 alt="${escapeHTML(p.titulo)}"
+                                 decoding="async"
+                                 ${i < 2 ? 'fetchpriority="high"' : 'loading="lazy"'}>
+                        </figure>
+                        <div class="project-tooltip">
+                            <h3 class="project-title">${escapeHTML(p.titulo)}</h3>
+                            <span class="project-tag">${escapeHTML(p.categoria)} — ${escapeHTML(p.year)}</span>
+                        </div>
+                    </a>
+                </article>
+            `).join('');
 
-                document.title = `${proyecto.titulo} — BRUNO PIETRANERA`;
-                document.getElementById('project-title').textContent = proyecto.titulo;
-                document.getElementById('project-category').textContent = proyecto.categoria;
-                document.getElementById('project-year').textContent = proyecto.year;
-                document.getElementById('project-desc').textContent = proyecto.descripcion;
-
-                galleryContainer.innerHTML = proyecto.imagenes.map(imgSrc => `
-                    <img src="${imgSrc}" loading="lazy" alt="${proyecto.titulo}">
-                `).join('');
-            });
-    }
-});
-
-// Función para mover la etiqueta con el cursor
-function initHoverEffect() {
-    const cards = document.querySelectorAll('.project-card');
-    cards.forEach(card => {
-        const tooltip = card.querySelector('.project-tooltip');
-        if (!tooltip) return;
-
-        card.addEventListener('mousemove', (e) => {
-            tooltip.style.transform = `translate3d(${e.clientX + 16}px, ${e.clientY + 16}px, 0)`;
+            initHoverEffect(projectsGrid);
+        })
+        .catch(err => {
+            console.error('Error al cargar proyectos:', err);
+            showMessage(projectsGrid, 'No se pudieron cargar los proyectos. Probá recargando la página.');
         });
+}
 
-        card.addEventListener('mouseenter', () => {
-            tooltip.style.opacity = '1';
-        });
+/* 2. Detalle de proyecto (proyecto.html) */
+const galleryContainer = document.getElementById('project-gallery');
+if (galleryContainer) {
+    const projectId = new URLSearchParams(window.location.search).get('id');
 
-        card.addEventListener('mouseleave', () => {
-            tooltip.style.opacity = '0';
+    loadProjects()
+        .then(proyectos => {
+            const proyecto = proyectos.find(p => p.id === projectId);
+
+            if (!proyecto) {
+                document.getElementById('project-title').textContent = 'Proyecto no encontrado';
+                document.getElementById('project-desc').innerHTML =
+                    '<a href="index.html">← Volver a proyectos</a>';
+                return;
+            }
+
+            document.title = `${proyecto.titulo} — BRUNO "QWWRT" PIETRANERA`;
+            document.querySelector('meta[name="description"]')
+                ?.setAttribute('content', proyecto.descripcion.trim().slice(0, 155));
+
+            document.getElementById('project-title').textContent = proyecto.titulo;
+            document.getElementById('project-category').textContent = proyecto.categoria;
+            document.getElementById('project-year').textContent = proyecto.year;
+            document.getElementById('project-desc').textContent = proyecto.descripcion;
+
+            const total = proyecto.imagenes.length;
+            galleryContainer.innerHTML = proyecto.imagenes.map((src, i) => `
+                <img src="${escapeHTML(src)}"
+                     alt="${escapeHTML(proyecto.titulo)} — imagen ${i + 1} de ${total}"
+                     decoding="async"
+                     ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>
+            `).join('');
+        })
+        .catch(err => {
+            console.error('Error al cargar el proyecto:', err);
+            document.getElementById('project-title').textContent = 'No se pudo cargar el proyecto';
         });
+}
+
+/* Etiqueta que sigue al cursor: un solo listener, solo con mouse */
+function initHoverEffect(grid) {
+    if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+
+    let current = null;
+    let tip = null;
+    let x = 0, y = 0;
+    let ticking = false;
+
+    const place = () => {
+        ticking = false;
+        if (!tip) return;
+        const pad = 16;
+        const { width, height } = tip.getBoundingClientRect();
+        let tx = x + pad;
+        let ty = y + pad;
+        // Si no entra a la derecha o abajo, se acomoda del otro lado del cursor
+        if (tx + width > window.innerWidth - 8) tx = x - width - pad;
+        if (ty + height > window.innerHeight - 8) ty = y - height - pad;
+        tip.style.transform = `translate3d(${Math.max(8, tx)}px, ${Math.max(8, ty)}px, 0)`;
+    };
+
+    grid.addEventListener('pointermove', e => {
+        const card = e.target.closest('.project-card');
+
+        if (card !== current) {
+            if (tip) tip.style.opacity = '0';
+            current = card;
+            tip = card ? card.querySelector('.project-tooltip') : null;
+            if (tip) tip.style.opacity = '1';
+        }
+
+        x = e.clientX;
+        y = e.clientY;
+        if (tip && !ticking) {
+            ticking = true;
+            requestAnimationFrame(place);
+        }
+    });
+
+    grid.addEventListener('pointerleave', () => {
+        if (tip) tip.style.opacity = '0';
+        current = null;
+        tip = null;
     });
 }

@@ -1,45 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRUNO "QWWRT" PIETRANERA — Portfolio</title>
+    <title>Bruno "QWWRT" Pietranera — Portfolio</title>
+    <meta name="description" content="Portfolio de diseño gráfico de Bruno Pietranera (QWWRT): identidad visual, diseño editorial y tipografía.">
+    <meta name="theme-color" content="#0d0d0d">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Bruno 'QWWRT' Pietranera — Portfolio">
+    <meta property="og:description" content="Portfolio de diseño gráfico.">
+    <meta property="og:locale" content="es_AR">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
+    <link rel="preload" href="proyectos.json" as="fetch" type="application/json" crossorigin>
 </head>
-
 <body>
+
+    <a href="#contenido" class="skip-link">Saltar al contenido</a>
 
     <header class="site-header">
         <div class="brand">
             <a href="index.html" class="logo">BRUNO "QWWRT" PIETRANERA</a>
             <span class="status-indicator">Disponible para proyectos</span>
         </div>
-        <nav class="site-nav">
+        <nav class="site-nav" aria-label="Principal">
             <ul>
-                <li><a href="index.html" class="active">Proyectos</a></li>
+                <li><a href="index.html" class="active" aria-current="page">Proyectos</a></li>
                 <li><a href="sobre-mi.html">Sobre mí</a></li>
                 <li><a href="contacto.html">Contacto</a></li>
             </ul>
         </nav>
     </header>
 
-    <main class="projects-container">
-        <!-- JavaScript insertará los proyectos desde proyectos.json aquí -->
-        <div id="projects-grid" class="projects-grid"></div>
+    <main id="contenido" class="projects-container">
+        <div id="projects-grid" class="projects-grid" aria-live="polite"></div>
+        <noscript>
+            <p class="empty-state">Este portfolio necesita JavaScript para mostrar los proyectos. Mientras tanto, podés verme en
+                <a href="https://www.behance.net/qwwrt" rel="noopener">Behance</a>.</p>
+        </noscript>
     </main>
 
-<footer class="site-footer">
-    <div class="footer-bar">
-        <div class="social-links">
-            <a href="https://www.behance.net/qwwrt" target="_blank" rel="noopener">Behance</a>
-            <a href="https://www.linkedin.com/in/bruno-pietranera-5b2691285" target="_blank" rel="noopener">LinkedIn</a>
+    <footer class="site-footer">
+        <div class="footer-bar">
+            <div class="social-links">
+                <a href="https://www.behance.net/qwwrt" target="_blank" rel="noopener">Behance</a>
+                <a href="https://www.linkedin.com/in/bruno-pietranera-5b2691285" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
+            <p class="copyright">&copy; 2026 Bruno Pietranera</p>
         </div>
-        <p class="copyright">&copy; 2026 Bruno Pietranera</p>
-    </div>
-</footer>
+    </footer>
 
-    <script src="main.js"></script>
+    <script src="main.js" defer></script>
 </body>
-
 </html>
